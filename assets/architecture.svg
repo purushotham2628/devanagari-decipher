@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="1000" height="420" viewBox="0 0 1000 420" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+  <style>
+    .box { fill: #0f1724; stroke: #eab308; stroke-width: 2; rx: 10; }
+    .box2 { fill: #0f1724; stroke: #60a5fa; stroke-width: 2; rx: 10; }
+    .label { fill: #e6edf3; font-family: Inter, Arial, sans-serif; font-size: 14px; }
+    .sub { fill: #9aa8b6; font-size: 12px; }
+    .arrow { stroke: #9aa8b6; stroke-width: 2; fill: none; marker-end: url(#arrowhead);} 
+    .bg { fill: #071023; }
+  </style>
+
+  <rect class="bg" x="0" y="0" width="1000" height="420" />
+
+  <defs>
+    <marker id="arrowhead" markerWidth="8" markerHeight="8" refX="8" refY="4" orient="auto">
+      <path d="M0,0 L8,4 L0,8 Z" fill="#9aa8b6" />
+    </marker>
+  </defs>
+
+  <!-- Frontend -->
+  <g>
+    <rect class="box" x="40" y="40" width="220" height="80"/>
+    <text class="label" x="150" y="70" text-anchor="middle">Frontend UI</text>
+    <text class="sub" x="150" y="90" text-anchor="middle">React + Vite (artifacts/sanskrit-translator)</text>
+  </g>
+
+  <!-- Backend -->
+  <g>
+    <rect class="box2" x="320" y="30" width="260" height="110"/>
+    <text class="label" x="450" y="60" text-anchor="middle">Backend API</text>
+    <text class="sub" x="450" y="82" text-anchor="middle">FastAPI (/py-api)</text>
+    <text class="sub" x="450" y="100" text-anchor="middle">Image processing, prompt orchestration</text>
+  </g>
+
+  <!-- Image Proc -->
+  <g>
+    <rect class="box" x="320" y="160" width="260" height="80"/>
+    <text class="label" x="450" y="190" text-anchor="middle">Image Enhancement</text>
+    <text class="sub" x="450" y="210" text-anchor="middle">OpenCV (cv2) or PIL fallback</text>
+  </g>
+
+  <!-- Gemini -->
+  <g>
+    <rect class="box" x="660" y="40" width="260" height="110"/>
+    <text class="label" x="790" y="70" text-anchor="middle">Google Gemini</text>
+    <text class="sub" x="790" y="92" text-anchor="middle">gemini-2.5-flash (LLM)</text>
+    <text class="sub" x="790" y="108" text-anchor="middle">Image & text generation -> JSON</text>
+  </g>
+
+  <!-- Parser / DB -->
+  <g>
+    <rect class="box2" x="660" y="170" width="260" height="80"/>
+    <text class="label" x="790" y="200" text-anchor="middle">Parse & Persist</text>
+    <text class="sub" x="790" y="220" text-anchor="middle">Validate JSON, save to SQLite</text>
+  </g>
+
+  <!-- Arrows -->
+  <path class="arrow" d="M260,80 L320,80" />
+  <path class="arrow" d="M580,80 L660,80" />
+  <path class="arrow" d="M580,200 L660,200" />
+  <path class="arrow" d="M580,240 L660,240" />
+  <path class="arrow" d="M580,160 L580,200" />
+
+  <!-- Feedback arrow back to UI -->
+  <path class="arrow" d="M790,250 L790,320 L260,320 L260,120" />
+
+  <!-- DB icon text -->
+  <text class="sub" x="800" y="250" text-anchor="middle">services/python-api/translations.db (SQLite)</text>
+
+  <!-- Footer caption -->
+  <text class="sub" x="500" y="390" text-anchor="middle">Runtime flow: Frontend → Backend → ImageProc → Gemini → Parse → Save → Frontend</text>
+
+</svg>

@@ -248,25 +248,7 @@ The `qualityScore` is intended to be a lightweight, explainable indicator of res
 
 The following ASCII diagram shows the high-level runtime flow and is safe to render on GitHub:
 
-```
-User UI
-	|
-	| submit image/text
-	v
-Backend API (/py-api)
-	|
-	| image enhancement (OpenCV / PIL)
-	v
-Google Gemini (gemini-2.5-flash)  <-- (base64 image / prompt)
-	|
-	| JSON response
-	v
-Parse & validate JSON
-	|
-	| save -> SQLite (services/python-api/translations.db)
-	v
-Return structured result -> Frontend UI
-```
+![Architecture diagram](assets/architecture.svg)
 
 This diagram shows the high-level runtime flow: user input in the frontend is sent to the FastAPI backend, images are enhanced, the enhanced payload is sent to Google Gemini, the returned JSON is parsed and persisted, then the frontend displays the structured result.
 
