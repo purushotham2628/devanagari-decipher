@@ -248,7 +248,7 @@ The `qualityScore` is intended to be a lightweight, explainable indicator of res
 
 The following ASCII diagram shows the high-level runtime flow and is safe to render on GitHub:
 
-![Architecture diagram](assets/architecture.svg)
+![Architecture diagram](assets/architecture.png)
 
 This diagram shows the high-level runtime flow: user input in the frontend is sent to the FastAPI backend, images are enhanced, the enhanced payload is sent to Google Gemini, the returned JSON is parsed and persisted, then the frontend displays the structured result.
 
