@@ -9,11 +9,14 @@ WORKDIR /app
 # Enable pnpm
 RUN corepack enable && corepack prepare pnpm@latest --activate
 
-# Copy frontend files
+# Copy entire monorepo
 COPY . .
 
-# Install dependencies
+# Install workspace dependencies
 RUN pnpm install --no-frozen-lockfile
+
+# Move to frontend workspace
+WORKDIR /app/artifacts/sanskrit-translator
 
 # Build frontend
 RUN pnpm build
@@ -25,12 +28,12 @@ RUN pnpm build
 FROM nginx:stable-alpine
 
 # Copy built frontend
-COPY --from=build /app/dist /usr/share/nginx/html
+COPY --from=build /app/artifacts/sanskrit-translator/dist /usr/share/nginx/html
 
 # Copy nginx config
-COPY nginx.conf /etc/nginx/conf.d/default.conf
+COPY artifacts/sanskrit-translator/nginx.conf /etc/nginx/conf.d/default.conf
 
-# Expose nginx port
+# Expose port
 EXPOSE 80
 
 # Start nginx
