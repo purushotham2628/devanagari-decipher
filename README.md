@@ -176,3 +176,114 @@ python services\python-api\main.py
 - The app saves translations to SQLite at `services/python-api/translations.db`.
 - The backend automatically initializes the database schema on startup.
 - The frontend currently uses the Gemini translation API to generate Sanskrit transliteration, translation, and quality/confidence metadata.
+
+## What this project does
+
+Sanskrit Decoder provides an end-to-end workflow for converting Sanskrit or Devanagari script (typed or image) into:
+
+- Verified Devanagari/Sanskrit text
+- IAST transliteration
+- Fluent scholarly English translation
+- Word-by-word breakdown
+- Contextual cultural and historical notes
+- Confidence metadata for each translation
+
+Users can upload inscription images or paste text, view results in a readable scholarly format, and browse saved translation history.
+
+## Architecture & Flow
+
+1. Frontend (`artifacts/sanskrit-translator`) — React + Vite UI
+	- Users upload an image or enter Devanagari/Sanskrit text and submit a translation request.
+	- Shows progress state, renders `originalText`, `transliteration`, `englishTranslation`, `wordByWord`, and `confidence`.
+	- Offers history browsing and download/export (frontend UI for download is planned as an enhancement).
+
+2. API Backend (`services/python-api`) — FastAPI
+	- Routes:
+	  - `POST /py-api/translate/text` — accepts text payloads
+	  - `POST /py-api/translate/image` — accepts multipart image uploads
+	  - `GET /py-api/translate/history` — lists saved translations
+	- Image processing pipeline: image resizing, denoising/sharpening (OpenCV/PIL fallback)
+	- Calls Google Gemini (Generative Language) API with a scholarly system prompt
+	- Parses Gemini JSON output, saves a record to SQLite, and returns the structured result to the frontend
+
+3. Storage — SQLite
+	- Located at `services/python-api/translations.db`
+	- Stores original text, transliteration, English translation, word-by-word breakdown, context, source type, confidence, and timestamp.
+
+4. External service — Google Gemini
+	- Used for OCR-like image-to-text decoding, transliteration, and scholarly translation generation.
+
+Flow summary:
+
+Frontend -> Backend (/py-api) -> Image enhancement -> Gemini API -> Parse JSON -> Save to SQLite -> Respond -> Frontend displays result
+
+## Future enhancements
+
+- Add a `qualityScore` field returned by the backend (e.g., model-estimated translation quality) and display it in the UI.
+- Add automatic script-type detection (Devanagari, Brahmi, Grantha, etc.) and present `scriptType` with the translation.
+- Add a frontend `Download translation` button that exports JSON, TXT, or PDF for a selected result.
+- Add OCR fallback using an OCR engine (Tesseract or a specialized OCR model) for low-quality images before or alongside Gemini.
+- Add user accounts and per-user history with optional export & import features.
+- Improve reliability with retries, rate-limiting, and caching for Gemini requests.
+- Add e2e tests and CI/CD pipeline for automated builds and linting.
+- Provide an offline mode with local model support or OCR-only translations.
+
+---
+
+If you'd like I can also:
+
+- Add a small architecture diagram to the README (SVG or ASCII art).
+- Implement the `qualityScore`, `scriptType`, and `download` features in the backend and frontend next — tell me which to implement first.
+
+## Scoring details (confidence and quality)
+
+- **Confidence**: this value is taken from the Gemini model output when the model provides an explicit `confidence` field (a float between 0.0 and 1.0). If Gemini does not provide a confidence value, the backend uses a conservative default of `0.8`. This field represents the model's internal estimate of how certain it is about the translation result.
+
+- **qualityScore**: a derived heuristic (0.0–1.0) computed by the backend to give a quick sense of translation completeness and apparent quality. The algorithm is intentionally conservative and currently uses the following rules:
+	- Start from the `confidence` (model-provided or default) and scale it slightly (weighted base).
+	- Add small bonuses when helpful artifacts are present:
+		- `wordByWord` present: +0.05
+		- `context` present: +0.03
+		- non-empty `transliteration` of reasonable length: +0.02
+		- substantive English translation (length heuristic): +0.02
+	- The computed score is clamped to the [0.0, 1.0] range and rounded to three decimal places.
+
+The `qualityScore` is intended to be a lightweight, explainable indicator of result quality for UI display and filtering; it is not a replacement for human review. Future improvements can replace or augment this heuristic with model-based calibration or external validation checks.
+
+## Architecture Diagram
+
+```mermaid
+flowchart LR
+	UI[User UI] -->|submit image/text| API[Backend API (/py-api)]
+	API -->|enhance image| IMGPROC[Image Enhancement (OpenCV / PIL)]
+	IMGPROC -->|send base64| GEMINI[Google Gemini (gemini-2.5-flash)]
+	GEMINI -->|JSON response| PARSE[Parse / Validate JSON]
+	PARSE -->|save| DB[SQLite (translations.db)]
+	PARSE -->|return| API
+	API -->|response| UI
+	subgraph Frontend
+		UI
+	end
+	subgraph Backend
+		API --> IMGPROC
+		IMGPROC --> GEMINI
+		GEMINI --> PARSE
+		PARSE --> DB
+	end
+```
+
+This diagram shows the high-level runtime flow: user input in the frontend is sent to the FastAPI backend, images are enhanced, the enhanced payload is sent to Google Gemini, the returned JSON is parsed and persisted, then the frontend displays the structured result.
+
+## Machine learning models and tooling used
+
+- Primary LLM: **Google Gemini** (`gemini-2.5-flash`) — used to perform image-to-text decoding (when given an image payload), IAST transliteration, scholarly English translation, word-by-word breakdown, contextual notes, and an estimated `confidence` value. The backend posts structured prompts (see `TRANSLATION_SYSTEM`, `TRANSLATION_PROMPT_IMAGE`, `TRANSLATION_PROMPT_TEXT`) and expects JSON-only responses.
+- Image processing: **OpenCV** (`cv2`) for denoising, adaptive threshold, and sharpening when available. A **PIL** fallback (ImageEnhance, ImageFilter) is used when OpenCV is not present.
+- Optional OCR fallback (not currently enabled by default): **Tesseract OCR** or a specialized OCR model can be integrated to extract characters from low-quality images before or alongside Gemini calls.
+- Local ML / offline options: none included by default — the system relies on Gemini as the model provider. Future work could add on-device or private model adapters (e.g., OpenVINO, ONNX runtime, or community OCR/transliteration models) for offline support and lower latency.
+
+Notes:
+
+- The `confidence` field comes from the parsed Gemini JSON if provided; otherwise the backend uses a conservative default (0.8) or a parse-time fallback.
+- Prompt engineering in `services/python-api/main.py` frames the LLM as an expert Sanskrit scholar and instructs it to return strict JSON to simplify parsing.
+- Sending images to Gemini uses base64-encoded inline parts; ensure your API quota and model permissions allow image inputs.
+- Keep `AI_INTEGRATIONS_GEMINI_API_KEY` secure and do not commit it — `.env` is ignored by default.

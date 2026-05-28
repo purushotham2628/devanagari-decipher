@@ -290,7 +290,38 @@ class TranslationOut(BaseModel):
     context: Optional[str] = None
     sourceType: str
     confidence: float
+    qualityScore: Optional[float] = None
     createdAt: str
+
+
+def _compute_quality_score(result: dict) -> float:
+    """Compute a heuristic quality score (0.0-1.0) based on available fields.
+
+    Uses the model-provided `confidence` as a base and boosts slightly when
+    word-by-word or context are present and when transliteration/translation
+    lengths look reasonable.
+    """
+    base = float(result.get("confidence", 0.8))
+    bonus = 0.0
+    if result.get("wordByWord"):
+        bonus += 0.05
+    if result.get("context"):
+        bonus += 0.03
+    translit = (result.get("transliteration") or "").strip()
+    eng = (result.get("englishTranslation") or "").strip()
+    orig = (result.get("originalText") or "").strip()
+    # reward when transliteration exists and lengths are non-trivial
+    if translit and len(translit) > 3:
+        bonus += 0.02
+    # reward when english translation is present and reasonably longer than original (heuristic)
+    if eng and len(eng) >= max(10, len(orig)):
+        bonus += 0.02
+    score = base * 0.9 + bonus
+    if score > 1.0:
+        score = 1.0
+    if score < 0.0:
+        score = 0.0
+    return round(score, 3)
 
 
 class StatsOut(BaseModel):
@@ -327,6 +358,7 @@ async def translate_text(body: TextInput):
         source_type="text",
         confidence=float(result.get("confidence", 0.8)),
     )
+    quality = _compute_quality_score(result)
     return TranslationOut(
         id=record_id,
         originalText=result.get("originalText", body.text),
@@ -336,6 +368,7 @@ async def translate_text(body: TextInput):
         context=result.get("context"),
         sourceType="text",
         confidence=float(result.get("confidence", 0.8)),
+        qualityScore=quality,
         createdAt=datetime.utcnow().isoformat() + "Z",
     )
 
@@ -366,6 +399,7 @@ async def translate_image(file: UploadFile = File(...)):
         source_type="image",
         confidence=float(result.get("confidence", 0.8)),
     )
+    quality = _compute_quality_score(result)
     return TranslationOut(
         id=record_id,
         originalText=result.get("originalText", ""),
@@ -375,6 +409,7 @@ async def translate_image(file: UploadFile = File(...)):
         context=result.get("context"),
         sourceType="image",
         confidence=float(result.get("confidence", 0.8)),
+        qualityScore=quality,
         createdAt=datetime.utcnow().isoformat() + "Z",
     )
 
@@ -397,6 +432,14 @@ async def get_history(limit: int = 20):
             "context": r["context"],
             "sourceType": r["source_type"],
             "confidence": r["confidence"],
+            "qualityScore": _compute_quality_score({
+                "originalText": r["original_text"],
+                "transliteration": r["transliteration"],
+                "englishTranslation": r["english_translation"],
+                "wordByWord": r["word_by_word"],
+                "context": r["context"],
+                "confidence": r["confidence"],
+            }),
             "createdAt": r["created_at"],
         }
         for r in rows
@@ -422,6 +465,14 @@ async def get_translation(translation_id: int):
         "context": row["context"],
         "sourceType": row["source_type"],
         "confidence": row["confidence"],
+        "qualityScore": _compute_quality_score({
+            "originalText": row["original_text"],
+            "transliteration": row["transliteration"],
+            "englishTranslation": row["english_translation"],
+            "wordByWord": row["word_by_word"],
+            "context": row["context"],
+            "confidence": row["confidence"],
+        }),
         "createdAt": row["created_at"],
     }
 

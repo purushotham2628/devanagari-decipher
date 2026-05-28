@@ -205,8 +205,11 @@ export default function Home() {
                 <h2 className="font-serif text-3xl text-primary flex items-center justify-center gap-3">
                   <BookOpen className="w-6 h-6 opacity-50" /> Translation Complete
                 </h2>
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-xs tracking-wider">
-                  Confidence: {Math.round(result.confidence * 100)}%
+                <div className="inline-flex items-center gap-3 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-xs tracking-wider">
+                  <span>Confidence: {Math.round(result.confidence * 100)}%</span>
+                  {typeof result.qualityScore === 'number' && (
+                    <span className="text-muted-foreground">Quality: {Math.round(result.qualityScore * 100)}%</span>
+                  )}
                 </div>
               </div>
 

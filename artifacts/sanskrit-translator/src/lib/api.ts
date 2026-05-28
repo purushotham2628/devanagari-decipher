@@ -7,6 +7,7 @@ export type TranslationResult = {
   context: string | null;
   sourceType: "text" | "image";
   confidence: number;
+  qualityScore?: number;
   createdAt: string;
 };
 
