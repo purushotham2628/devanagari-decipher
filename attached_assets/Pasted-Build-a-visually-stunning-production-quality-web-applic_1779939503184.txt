@@ -1,0 +1,106 @@
+Build a visually stunning, production-quality web application using Python and FastAPI that can accurately decode and translate ancient Devanagari/Sanskrit inscriptions from uploaded images into English.
+
+Core Requirements
+Backend must use Python + FastAPI
+Users should be able to:
+Upload images of ancient inscriptions, manuscripts, temple carvings, copper plates, palm-leaf texts, stone engravings, and monument scripts
+Upload low-quality, damaged, noisy, blurred, tilted, faded, or partially broken inscription images
+The system should:
+Detect ancient Devanagari/Sanskrit text from images
+Perform image enhancement and restoration automatically
+Remove noise and improve readability using AI-based preprocessing
+Extract text using OCR specialized for Sanskrit/Devanagari
+Translate extracted Sanskrit/ancient Devanagari text into accurate English
+Display:
+Original uploaded image
+Enhanced/restored image
+Extracted Sanskrit text
+English translation
+Confidence score
+Include support for:
+Ancient inscriptions on stone monuments
+Temple carvings
+Historical scripts
+Old manuscript scans
+Weathered inscriptions
+Damaged monument engravings
+AI/ML Features
+
+Use advanced AI and computer vision techniques:
+
+OCR models for Sanskrit/Devanagari recognition
+Transformer/NLP-based translation models
+Image denoising and restoration
+Contrast enhancement
+Super-resolution for blurry inscription images
+Edge sharpening and adaptive thresholding
+Perspective correction for angled monument photos
+Suggested Tech Stack
+Backend
+FastAPI
+Python
+OpenCV
+Pillow
+NumPy
+PyTorch/TensorFlow
+EasyOCR / Tesseract / TrOCR
+HuggingFace Transformers
+Sanskrit translation models
+Frontend
+
+Create an extremely modern UI with:
+
+React or Next.js frontend
+Tailwind CSS
+Framer Motion animations
+Dark luxury theme inspired by archaeology/history
+Glassmorphism effects
+Animated upload area
+Interactive translation panels
+Before/after image comparison slider
+Responsive design
+UI/UX Requirements
+
+The web application should feel premium and cinematic:
+
+Ancient manuscript-inspired aesthetics
+Smooth animations
+Elegant typography
+Gold + dark stone color palette
+Loading animations during OCR/translation
+Drag-and-drop upload support
+Real-time processing indicators
+Mobile responsive
+Functional Workflow
+User uploads inscription image
+Backend preprocesses and enhances image
+OCR extracts ancient Devanagari/Sanskrit text
+NLP model translates text into English
+Results are shown beautifully in the UI
+Advanced Features
+Multi-language output support
+Download translation as PDF
+History of uploaded inscriptions
+Side-by-side comparison viewer
+Zoomable inscription viewer
+AI confidence estimation
+Batch upload support
+REST API endpoints
+Performance Requirements
+Fast processing
+Handle high-resolution images
+Robust against noisy ancient inscriptions
+Accurate OCR for faded monument carvings
+Clean architecture and modular codebase
+Deliverables
+Complete FastAPI backend
+Beautiful frontend UI
+OCR pipeline
+Translation pipeline
+API documentation using Swagger
+Docker support
+Proper folder structure
+Deployment-ready code
+Project Goal
+
+The application should act as an AI-powered archaeological inscription decoder capable of helping users understand ancient Sanskrit/Devanagari inscriptions from monuments, temples, manuscripts, and historical artifacts by converting them into readable English translations with high visual quality and accuracy.

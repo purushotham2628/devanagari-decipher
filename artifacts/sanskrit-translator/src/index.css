@@ -1,0 +1,111 @@
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:ital,wght@0,400..900;1,400..900&family=Noto+Serif+Devanagari:wght@100..900&family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&family=Tiro+Devanagari+Sanskrit:ital@0;1&display=swap');
+
+@import "tailwindcss";
+@import "tw-animate-css";
+@plugin "@tailwindcss/typography";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-background: hsl(var(--background));
+  --color-foreground: hsl(var(--foreground));
+  --color-border: hsl(var(--border));
+  --color-input: hsl(var(--input));
+  --color-ring: hsl(var(--ring));
+
+  --color-card: hsl(var(--card));
+  --color-card-foreground: hsl(var(--card-foreground));
+  --color-card-border: hsl(var(--card-border));
+
+  --color-popover: hsl(var(--popover));
+  --color-popover-foreground: hsl(var(--popover-foreground));
+  --color-popover-border: hsl(var(--popover-border));
+
+  --color-primary: hsl(var(--primary));
+  --color-primary-foreground: hsl(var(--primary-foreground));
+  --color-primary-border: var(--primary-border);
+
+  --color-secondary: hsl(var(--secondary));
+  --color-secondary-foreground: hsl(var(--secondary-foreground));
+  --color-secondary-border: var(--secondary-border);
+
+  --color-muted: hsl(var(--muted));
+  --color-muted-foreground: hsl(var(--muted-foreground));
+  --color-muted-border: var(--muted-border);
+
+  --color-accent: hsl(var(--accent));
+  --color-accent-foreground: hsl(var(--accent-foreground));
+  --color-accent-border: var(--accent-border);
+
+  --color-destructive: hsl(var(--destructive));
+  --color-destructive-foreground: hsl(var(--destructive-foreground));
+  --color-destructive-border: var(--destructive-border);
+
+  --font-sans: var(--app-font-sans);
+  --font-serif: var(--app-font-serif);
+  --font-mono: var(--app-font-mono);
+  --font-devanagari: var(--app-font-devanagari);
+  --font-devanagari-serif: var(--app-font-devanagari-serif);
+
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+}
+
+:root, .dark {
+  --background: 0 0% 4%;
+  --foreground: 45 30% 90%;
+  
+  --card: 0 0% 6%;
+  --card-foreground: 45 20% 85%;
+  --card-border: 45 10% 15%;
+
+  --popover: 0 0% 6%;
+  --popover-foreground: 45 20% 85%;
+  --popover-border: 45 10% 15%;
+
+  --primary: 43 54% 54%;
+  --primary-foreground: 0 0% 0%;
+  
+  --secondary: 0 0% 12%;
+  --secondary-foreground: 45 20% 80%;
+
+  --muted: 0 0% 10%;
+  --muted-foreground: 45 10% 60%;
+
+  --accent: 43 54% 54%;
+  --accent-foreground: 0 0% 0%;
+
+  --destructive: 0 60% 40%;
+  --destructive-foreground: 0 0% 98%;
+
+  --border: 0 0% 15%;
+  --input: 0 0% 15%;
+  --ring: 43 54% 54%;
+
+  --app-font-sans: 'Plus Jakarta Sans', sans-serif;
+  --app-font-serif: 'Cinzel', serif;
+  --app-font-devanagari: 'Noto Serif Devanagari', serif;
+  --app-font-devanagari-serif: 'Tiro Devanagari Sanskrit', serif;
+  
+  --radius: 0.25rem;
+
+  --shadow: 0px 4px 20px rgba(0, 0, 0, 0.5);
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  
+  body {
+    @apply font-sans antialiased bg-background text-foreground;
+    background-image: radial-gradient(circle at 50% 0%, #1a1a1a 0%, #0a0a0a 100%);
+    background-attachment: fixed;
+  }
+
+  .devanagari-text {
+    font-family: var(--font-devanagari-serif);
+  }
+}
