@@ -229,12 +229,6 @@ Frontend -> Backend (/py-api) -> Image enhancement -> Gemini API -> Parse JSON -
 - Provide an offline mode with local model support or OCR-only translations.
 
 ---
-
-If you'd like I can also:
-
-- Add a small architecture diagram to the README (SVG or ASCII art).
-- Implement the `qualityScore`, `scriptType`, and `download` features in the backend and frontend next — tell me which to implement first.
-
 ## Scoring details (confidence and quality)
 
 - **Confidence**: this value is taken from the Gemini model output when the model provides an explicit `confidence` field (a float between 0.0 and 1.0). If Gemini does not provide a confidence value, the backend uses a conservative default of `0.8`. This field represents the model's internal estimate of how certain it is about the translation result.
@@ -252,24 +246,26 @@ The `qualityScore` is intended to be a lightweight, explainable indicator of res
 
 ## Architecture Diagram
 
-```mermaid
-flowchart LR
-	UI[User UI] -->|submit image/text| API[Backend API (/py-api)]
-	API -->|enhance image| IMGPROC[Image Enhancement (OpenCV / PIL)]
-	IMGPROC -->|send base64| GEMINI[Google Gemini (gemini-2.5-flash)]
-	GEMINI -->|JSON response| PARSE[Parse / Validate JSON]
-	PARSE -->|save| DB[SQLite (translations.db)]
-	PARSE -->|return| API
-	API -->|response| UI
-	subgraph Frontend
-		UI
-	end
-	subgraph Backend
-		API --> IMGPROC
-		IMGPROC --> GEMINI
-		GEMINI --> PARSE
-		PARSE --> DB
-	end
+The following ASCII diagram shows the high-level runtime flow and is safe to render on GitHub:
+
+```
+User UI
+	|
+	| submit image/text
+	v
+Backend API (/py-api)
+	|
+	| image enhancement (OpenCV / PIL)
+	v
+Google Gemini (gemini-2.5-flash)  <-- (base64 image / prompt)
+	|
+	| JSON response
+	v
+Parse & validate JSON
+	|
+	| save -> SQLite (services/python-api/translations.db)
+	v
+Return structured result -> Frontend UI
 ```
 
 This diagram shows the high-level runtime flow: user input in the frontend is sent to the FastAPI backend, images are enhanced, the enhanced payload is sent to Google Gemini, the returned JSON is parsed and persisted, then the frontend displays the structured result.
