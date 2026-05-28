@@ -1,0 +1,25 @@
+services:
+  - type: web_service
+    name: sanskrit-decoder-backend
+    env: docker
+    plan: starter
+    dockerfilePath: services/python-api/Dockerfile
+    region: oregon
+    branch: main
+    buildCommand: ""
+    startCommand: ""
+    envVars:
+      - key: AI_INTEGRATIONS_GEMINI_API_KEY
+        fromDatabase: false
+      - key: AI_INTEGRATIONS_GEMINI_BASE_URL
+        fromDatabase: false
+
+  - type: web_service
+    name: sanskrit-decoder-frontend
+    env: docker
+    plan: free
+    dockerfilePath: artifacts/sanskrit-translator/Dockerfile
+    region: oregon
+    branch: main
+    buildCommand: ""
+    startCommand: ""
