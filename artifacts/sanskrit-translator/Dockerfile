@@ -1,19 +1,37 @@
-FROM node:20-alpine AS build
+
+# =========================
+# Build Stage
+# =========================
+FROM node:22-alpine AS build
+
 WORKDIR /app
 
-# Install pnpm via corepack
+# Enable pnpm
 RUN corepack enable && corepack prepare pnpm@latest --activate
 
-COPY artifacts/sanskrit-translator/package.json artifacts/sanskrit-translator/pnpm-lock.yaml* ./
-RUN pnpm install --frozen-lockfile --ignore-scripts
-COPY artifacts/sanskrit-translator ./
+# Copy frontend files
+COPY . .
+
+# Install dependencies
+RUN pnpm install --no-frozen-lockfile
+
+# Build frontend
 RUN pnpm build
 
+
+# =========================
+# Production Stage
+# =========================
 FROM nginx:stable-alpine
+
+# Copy built frontend
 COPY --from=build /app/dist /usr/share/nginx/html
-COPY artifacts/sanskrit-translator/nginx.conf /etc/nginx/conf.d/default.conf
-COPY scripts/wait-for.sh /wait-for.sh
-RUN chmod +x /wait-for.sh && apk add --no-cache curl
+
+# Copy nginx config
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+
+# Expose nginx port
 EXPOSE 80
-ENTRYPOINT ["/wait-for.sh","http://backend:8000/health","60"]
-CMD ["nginx","-g","daemon off;"]
+
+# Start nginx
+CMD ["nginx", "-g", "daemon off;"]
