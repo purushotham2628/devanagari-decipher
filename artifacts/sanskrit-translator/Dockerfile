@@ -6,20 +6,14 @@ FROM node:22-alpine AS build
 
 WORKDIR /app
 
-# Enable pnpm
-RUN corepack enable && corepack prepare pnpm@latest --activate
-
-# Copy entire monorepo
+# Copy frontend files only
 COPY . .
 
-# Install workspace dependencies
-RUN pnpm install --no-frozen-lockfile
-
-# Move to frontend workspace
-WORKDIR /app/artifacts/sanskrit-translator
+# Install dependencies
+RUN npm install
 
 # Build frontend
-RUN pnpm build
+RUN npm run build
 
 
 # =========================
@@ -27,13 +21,11 @@ RUN pnpm build
 # =========================
 FROM nginx:stable-alpine
 
-# Copy built frontend
-COPY --from=build /app/artifacts/sanskrit-translator/dist /usr/share/nginx/html
+# Copy built files
+COPY --from=build /app/dist /usr/share/nginx/html
 
 # Copy nginx config
-
 COPY nginx.conf /etc/nginx/conf.d/default.conf
-
 
 # Expose port
 EXPOSE 80
