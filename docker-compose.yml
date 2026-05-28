@@ -1,0 +1,30 @@
+version: '3.8'
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: services/python-api/Dockerfile
+    image: sanskrit-decoder-backend:latest
+    env_file:
+      - .env
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./services/python-api:/app/services/python-api
+      - ./services/python-api/translations.db:/app/services/python-api/translations.db
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: .
+      dockerfile: artifacts/sanskrit-translator/Dockerfile
+    image: sanskrit-decoder-frontend:latest
+    ports:
+      - "5174:80"
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+networks:
+  default:
+    name: sanskrit-decoder-net
