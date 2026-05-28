@@ -31,7 +31,9 @@ FROM nginx:stable-alpine
 COPY --from=build /app/artifacts/sanskrit-translator/dist /usr/share/nginx/html
 
 # Copy nginx config
-COPY artifacts/sanskrit-translator/nginx.conf /etc/nginx/conf.d/default.conf
+
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+
 
 # Expose port
 EXPOSE 80
