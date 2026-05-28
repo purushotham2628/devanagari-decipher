@@ -4,7 +4,6 @@ import json
 import logging
 import os
 import re
-import time
 from contextlib import asynccontextmanager
 from datetime import datetime
 from io import BytesIO
@@ -15,7 +14,6 @@ import httpx
 import numpy as np
 from fastapi import FastAPI, File, HTTPException, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
 from PIL import Image, ImageEnhance, ImageFilter
 from pydantic import BaseModel
 
@@ -144,24 +142,29 @@ def enhance_image(image_bytes: bytes) -> tuple[bytes, str]:
 
 # ─── Gemini client ───────────────────────────────────────────────────────────
 
-GEMINI_BASE_URL = os.environ.get(
-    "AI_INTEGRATIONS_GEMINI_BASE_URL",
-    "https://generativelanguage.googleapis.com",
-).rstrip("/")
+GEMINI_BASE_URL = os.environ.get("AI_INTEGRATIONS_GEMINI_BASE_URL", "").rstrip("/")
 GEMINI_API_KEY = os.environ.get("AI_INTEGRATIONS_GEMINI_API_KEY", "")
 GEMINI_MODEL = "gemini-2.5-flash"
 
 
+def _gemini_url() -> str:
+    """Build the correct generateContent URL for the Replit proxy (no version prefix)."""
+    if GEMINI_BASE_URL:
+        return f"{GEMINI_BASE_URL}/models/{GEMINI_MODEL}:generateContent"
+    return f"https://generativelanguage.googleapis.com/v1beta/models/{GEMINI_MODEL}:generateContent"
+
+
 def _gemini_headers() -> dict:
-    return {
-        "Content-Type": "application/json",
-        "x-goog-api-key": GEMINI_API_KEY,
-    }
+    return {"Content-Type": "application/json", "x-goog-api-key": GEMINI_API_KEY}
 
 
-TRANSLATION_SYSTEM = """You are an expert Sanskrit and ancient Devanagari script scholar with deep knowledge of classical Sanskrit, Vedic texts, Puranas, inscriptions, and ancient Indian literature. You specialize in decoding ancient manuscripts, temple inscriptions, copper plates, stone carvings, and palm-leaf texts.
-
-Respond ONLY with valid JSON — no markdown, no code fences, no extra text."""
+TRANSLATION_SYSTEM = (
+    "You are an expert Sanskrit and ancient Devanagari script scholar with deep "
+    "knowledge of classical Sanskrit, Vedic texts, Puranas, inscriptions, and ancient "
+    "Indian literature. You specialize in decoding ancient manuscripts, temple "
+    "inscriptions, copper plates, stone carvings, and palm-leaf texts.\n\n"
+    "Respond ONLY with valid JSON — no markdown, no code fences, no extra text."
+)
 
 TRANSLATION_PROMPT_IMAGE = """Analyze this image of an ancient inscription, manuscript, or carved text.
 
@@ -209,7 +212,6 @@ Respond ONLY with this JSON:
 
 async def call_gemini_image(image_bytes: bytes, mime_type: str) -> dict:
     image_b64 = base64.b64encode(image_bytes).decode("utf-8")
-    url = f"{GEMINI_BASE_URL}/v1beta/models/{GEMINI_MODEL}:generateContent"
     payload = {
         "system_instruction": {"parts": [{"text": TRANSLATION_SYSTEM}]},
         "contents": [{
@@ -219,31 +221,24 @@ async def call_gemini_image(image_bytes: bytes, mime_type: str) -> dict:
                 {"text": TRANSLATION_PROMPT_IMAGE},
             ],
         }],
-        "generationConfig": {
-            "maxOutputTokens": 8192,
-            "temperature": 0.1,
-        },
+        "generationConfig": {"maxOutputTokens": 8192, "temperature": 0.1},
     }
     async with httpx.AsyncClient(timeout=120.0) as client:
-        resp = await client.post(url, json=payload, headers=_gemini_headers())
+        resp = await client.post(_gemini_url(), json=payload, headers=_gemini_headers())
         resp.raise_for_status()
     raw_text = resp.json()["candidates"][0]["content"]["parts"][0]["text"]
     return _parse_gemini_json(raw_text)
 
 
 async def call_gemini_text(text: str) -> dict:
-    url = f"{GEMINI_BASE_URL}/v1beta/models/{GEMINI_MODEL}:generateContent"
     prompt = TRANSLATION_PROMPT_TEXT.format(text=text)
     payload = {
         "system_instruction": {"parts": [{"text": TRANSLATION_SYSTEM}]},
         "contents": [{"role": "user", "parts": [{"text": prompt}]}],
-        "generationConfig": {
-            "maxOutputTokens": 8192,
-            "temperature": 0.1,
-        },
+        "generationConfig": {"maxOutputTokens": 8192, "temperature": 0.1},
     }
     async with httpx.AsyncClient(timeout=60.0) as client:
-        resp = await client.post(url, json=payload, headers=_gemini_headers())
+        resp = await client.post(_gemini_url(), json=payload, headers=_gemini_headers())
         resp.raise_for_status()
     raw_text = resp.json()["candidates"][0]["content"]["parts"][0]["text"]
     return _parse_gemini_json(raw_text)

@@ -1,0 +1,1 @@
+- [Replit Gemini proxy path format](replit-gemini-proxy-path.md) — omit /v1beta/ version prefix; use {BASE_URL}/models/{model}:generateContent
