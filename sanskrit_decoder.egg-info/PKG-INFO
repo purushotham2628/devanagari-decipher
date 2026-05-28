@@ -1,0 +1,15 @@
+Metadata-Version: 2.4
+Name: sanskrit-decoder
+Version: 0.1.0
+Summary: Sanskrit translation API with text and image support
+Requires-Python: >=3.12
+Requires-Dist: aiosqlite>=0.22.1
+Requires-Dist: fastapi>=0.136.3
+Requires-Dist: google-generativeai>=0.8.6
+Requires-Dist: httpx>=0.28.1
+Requires-Dist: numpy>=2.4.6
+Requires-Dist: opencv-python-headless>=4.13.0.92
+Requires-Dist: pillow>=12.2.0
+Requires-Dist: python-dotenv>=1.2.2
+Requires-Dist: python-multipart>=0.0.29
+Requires-Dist: uvicorn[standard]>=0.48.0

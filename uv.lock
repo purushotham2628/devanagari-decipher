@@ -934,7 +934,7 @@ wheels = [
 ]
 
 [[package]]
-name = "repl-nix-workspace"
+name = "sanskrit-decoder"
 version = "0.1.0"
 source = { virtual = "." }
 dependencies = [

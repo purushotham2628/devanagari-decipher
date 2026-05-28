@@ -9,6 +9,7 @@ from datetime import datetime
 from io import BytesIO
 from typing import Optional
 
+from dotenv import load_dotenv
 import aiosqlite
 import httpx
 import numpy as np
@@ -16,6 +17,8 @@ from fastapi import FastAPI, File, HTTPException, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from PIL import Image, ImageEnhance, ImageFilter
 from pydantic import BaseModel
+
+load_dotenv()
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -146,9 +149,14 @@ GEMINI_BASE_URL = os.environ.get("AI_INTEGRATIONS_GEMINI_BASE_URL", "").rstrip("
 GEMINI_API_KEY = os.environ.get("AI_INTEGRATIONS_GEMINI_API_KEY", "")
 GEMINI_MODEL = "gemini-2.5-flash"
 
+if not GEMINI_API_KEY:
+    logger.warning(
+        "AI_INTEGRATIONS_GEMINI_API_KEY is not set. Gemini translation requests will fail with PERMISSION_DENIED."
+    )
+
 
 def _gemini_url() -> str:
-    """Build the correct generateContent URL for the Replit proxy (no version prefix)."""
+    """Build the correct Gemini generateContent URL."""
     if GEMINI_BASE_URL:
         return f"{GEMINI_BASE_URL}/models/{GEMINI_MODEL}:generateContent"
     return f"https://generativelanguage.googleapis.com/v1beta/models/{GEMINI_MODEL}:generateContent"

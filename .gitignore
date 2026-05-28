@@ -44,6 +44,10 @@ Thumbs.db
 .cursor/rules/nx-rules.mdc
 .github/instructions/nx.instructions.md
 
-# Replit
+# local runtime
 .cache/
 .local/
+
+# local environment and DB
+.env
+services/python-api/translations.db

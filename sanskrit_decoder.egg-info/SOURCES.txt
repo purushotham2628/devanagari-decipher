@@ -1,0 +1,7 @@
+README.md
+pyproject.toml
+sanskrit_decoder.egg-info/PKG-INFO
+sanskrit_decoder.egg-info/SOURCES.txt
+sanskrit_decoder.egg-info/dependency_links.txt
+sanskrit_decoder.egg-info/requires.txt
+sanskrit_decoder.egg-info/top_level.txt
