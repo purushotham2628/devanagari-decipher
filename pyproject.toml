@@ -2,13 +2,13 @@
 name = "sanskrit-decoder"
 version = "0.1.0"
 description = "Sanskrit translation API with text and image support"
-requires-python = ">=3.12"
+requires-python = ">=3.10"
 dependencies = [
     "aiosqlite>=0.22.1",
     "fastapi>=0.136.3",
     "google-generativeai>=0.8.6",
     "httpx>=0.28.1",
-    "numpy>=2.4.6",
+    "numpy>=2.0.0,<2.3",
     "opencv-python-headless>=4.13.0.92",
     "pillow>=12.2.0",
     "python-dotenv>=1.2.2",

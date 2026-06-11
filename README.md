@@ -10,6 +10,24 @@ Sanskrit Decoder is a full-stack Sanskrit translation project. It lets users tra
 - **Database:** SQLite (`services/python-api/translations.db`)
 - **Workspace tooling:** pnpm workspaces for JavaScript/TypeScript packages, Python `.venv` for backend dependencies
 
+## Quick Reference - Get Started in 5 Minutes
+
+If you just want to run the project quickly after setup:
+
+```powershell
+# Terminal 1: Start Backend
+.\.venv\Scripts\Activate.ps1
+python services\python-api\main.py
+
+# Terminal 2: Start Frontend
+cd artifacts\sanskrit-translator
+pnpm dev
+
+# Then open: http://localhost:5173
+```
+
+For detailed setup instructions, see [Setup & Installation](#setup--installation) section below.
+
 ## Project Structure
 
 - `artifacts/sanskrit-translator` - React/Vite frontend application
@@ -23,15 +41,28 @@ Sanskrit Decoder is a full-stack Sanskrit translation project. It lets users tra
 
 ## Requirements
 
-- Node.js 22+
-- pnpm (via Corepack if not installed globally)
-- Python 3.12+
-- Google Gemini API key
+### Before you start
 
-## Optional tools
+Make sure you have the following installed on your system:
 
-- `corepack` for pnpm management
-- `python-dotenv` for `.env` support
+- **Node.js 22+** — [Download from nodejs.org](https://nodejs.org/)
+  - Verify installation: `node --version`
+  - pnpm comes with Node.js via Corepack
+  
+- **Python 3.10+** — [Download from python.org](https://www.python.org/downloads/)
+  - Verify installation: `python --version`
+  - Make sure `pip` is available: `pip --version`
+  
+- **Git** — [Download from git-scm.com](https://git-scm.com/)
+  - Verify installation: `git --version`
+  
+- **Google Gemini API Key** — [Get it from Google AI Studio](https://aistudio.google.com/app/apikey)
+  - You'll need this to enable Sanskrit translation features
+
+### Optional tools
+
+- **VS Code** — Recommended code editor for development
+- **Docker & Docker Compose** — Only if you want to run the project in containers
 
 ## Backend details
 
@@ -71,105 +102,420 @@ It renders:
 
 The frontend expects the backend API at `http://127.0.0.1:8000` by default. Requests are proxied through `/py-api`.
 
-## Setup
+## Setup & Installation
 
-1. Open a terminal in the repository root.
-2. Install JavaScript dependencies:
+Follow these steps to get the project running on your local machine after cloning from GitHub.
+
+### Step 1: Clone the Repository
+
+```powershell
+git clone https://github.com/your-username/Sanskrit-Decoder.git
+cd Sanskrit-Decoder
+```
+
+**What this does:** Downloads the entire project code to your computer and navigates into the project folder.
+
+### Step 2: Verify Prerequisites
+
+Check that all required tools are installed:
+
+```powershell
+# Check Node.js version (should be 22+)
+node --version
+
+# Check npm/pnpm availability
+npm --version
+
+# Check Python version (should be 3.10+)
+python --version
+
+# Verify pip is available
+pip --version
+```
+
+If any of these show errors or outdated versions, install the latest versions from the links above.
+
+### Step 3: Install Node.js Dependencies
 
 ```powershell
 pnpm install
 ```
 
-3. Create and activate the Python virtual environment:
+**What this does:** 
+- Installs all JavaScript/TypeScript packages for the entire workspace
+- Creates a `node_modules` folder with all dependencies
+- Sets up shared libraries for both frontend and backend communication
+- This may take 1-2 minutes depending on your internet speed
+
+**Expected output:** You should see "Done in X.Xs" when complete.
+
+### Step 4: Create Python Virtual Environment
 
 ```powershell
 python -m venv .venv
-.\.venv\Scripts\Activate.ps1
 ```
 
-4. Install backend dependencies:
+**What this does:**
+- Creates an isolated Python environment in the `.venv` folder
+- Ensures project dependencies don't interfere with your system Python
+- This takes a few seconds and creates about 200MB in your project folder
+
+### Step 5: Activate Python Virtual Environment
 
 ```powershell
-python -m pip install -e .
+# On Windows (PowerShell):
+.\.venv\Scripts\Activate.ps1
+
+# On Windows (Command Prompt):
+.\.venv\Scripts\activate.bat
+
+# On macOS/Linux:
+source .venv/bin/activate
 ```
 
-5. Create a `.env` file in the repository root with your Gemini credentials:
+**What this does:**
+- Activates the isolated Python environment
+- Your terminal prompt should now show `(.venv)` at the beginning
+- All subsequent `pip install` commands will use this virtual environment
+
+**Note:** You must activate the virtual environment every time you open a new terminal.
+
+### Step 6: Install Python Dependencies
+
+```powershell
+pip install -e .
+```
+
+**What this does:**
+- Installs all Python packages listed in `pyproject.toml`
+- Installs FastAPI, Uvicorn, Google Generative AI, image processing libraries, and database tools
+- The `-e` flag installs the project in "editable" mode for development
+- This may take 3-5 minutes as it downloads and compiles dependencies
+
+**Expected output:** You should see "Successfully installed" message with a list of packages.
+
+### Step 7: Create Environment Configuration File
+
+Create a `.env` file in the repository root with your Gemini API credentials:
+
+```powershell
+# Create the file (on Windows)
+New-Item -Path .\.env -ItemType File
+
+# Or use your text editor to create: Sanskrit-Decoder/.env
+```
+
+Add the following content to the `.env` file:
 
 ```text
-AI_INTEGRATIONS_GEMINI_API_KEY=your-api-key
+AI_INTEGRATIONS_GEMINI_API_KEY=your-actual-api-key-here
 AI_INTEGRATIONS_GEMINI_BASE_URL=https://generativelanguage.googleapis.com/v1beta
 ```
 
-> Note: If you use a custom Gemini base URL, set `AI_INTEGRATIONS_GEMINI_BASE_URL`.
+**What this does:**
+- Stores your Gemini API key securely
+- Enables the Sanskrit translation feature
+- Without this, the app will work but translation requests will fail
 
-## Run the project step-by-step
+**Getting your API key:**
+1. Go to [Google AI Studio](https://aistudio.google.com/app/apikey)
+2. Sign in with your Google account
+3. Click "Create API key"
+4. Copy the key and paste it into the `.env` file
+5. Save the file
 
-### 1. Start the backend
+**Important:** Do NOT commit `.env` to GitHub. It's already in `.gitignore`.
 
-In terminal 1:
+## Running the Project
 
-```powershell
-cd .\services\python-api
-..\.venv\Scripts\python.exe -m uvicorn main:app --reload --host 127.0.0.1 --port 8000
-```
+After completing the setup steps above, follow these instructions to start both the backend and frontend servers.
 
-Or from repository root:
+### Quick Start (Recommended for most users)
 
-```powershell
-.\.venv\Scripts\python.exe -m uvicorn services.python-api.main:app --reload --host 127.0.0.1 --port 8000
-```
+Open **two separate terminals** in the project root and run:
 
-The backend should be available at:
-
-```text
-http://127.0.0.1:8000
-```
-
-### 2. Start the frontend
-
-In terminal 2:
+**Terminal 1 - Backend Server:**
 
 ```powershell
-cd .\artifacts\sanskrit-translator
-corepack pnpm exec vite --host 0.0.0.0 --port 5173
-```
+# Activate Python environment
+.\.venv\Scripts\Activate.ps1
 
-If port `5173` is in use, choose another port:
-
-```powershell
-corepack pnpm exec vite --host 0.0.0.0 --port 5174
-```
-
-Open the app in your browser at:
-
-```text
-http://localhost:5173
-```
-
-### 3. Verify the backend from the frontend
-
-The frontend sends requests to the backend proxy path `/py-api`.
-
-If you change the backend host or port, set:
-
-```powershell
-$env:PY_API_URL="http://127.0.0.1:8000"
-```
-
-## Common commands
-
-```powershell
-pnpm run typecheck
-pnpm run build
-pnpm --filter @workspace/sanskrit-translator dev
+# Run the backend
 python services\python-api\main.py
+```
+
+You should see:
+```
+INFO:     Started server process [XXXX]
+INFO:     Uvicorn running on http://0.0.0.0:8000
+```
+
+**Terminal 2 - Frontend Server:**
+
+```powershell
+# Navigate to the frontend folder
+cd artifacts\sanskrit-translator
+
+# Start the development server
+pnpm dev
+```
+
+You should see:
+```
+VITE v7.3.3  ready in XXX ms
+
+➜  Local:   http://localhost:5173/
+```
+
+### Step 1: Start the Backend API Server
+
+The backend provides the translation endpoints that the frontend communicates with.
+
+**Option A: From project root (Recommended)**
+
+```powershell
+# Make sure your Python environment is activated (you should see (.venv) in the prompt)
+.\.venv\Scripts\Activate.ps1
+
+# Run the backend
+python services\python-api\main.py
+```
+
+**Option B: Using uvicorn directly**
+
+```powershell
+.\.venv\Scripts\Activate.ps1
+uvicorn services.python-api.main:app --reload --host 127.0.0.1 --port 8000
+```
+
+**What this does:**
+- Starts the FastAPI server on port 8000
+- Initializes the SQLite database for storing translations
+- Enables auto-reload when you modify the code
+- Waits for requests from the frontend
+
+**Verify backend is running:**
+- Open your browser and go to `http://127.0.0.1:8000/docs`
+- You should see the Swagger API documentation
+- This confirms the backend is working correctly
+
+**Backend endpoints available:**
+- `GET http://127.0.0.1:8000/healthz` - Health check
+- `POST http://127.0.0.1:8000/py-api/translate/text` - Translate text
+- `POST http://127.0.0.1:8000/py-api/translate/image` - Translate image
+- `GET http://127.0.0.1:8000/py-api/translate/history` - View translation history
+
+### Step 2: Start the Frontend Development Server
+
+In a **new terminal window**, navigate to the frontend folder and start the Vite dev server.
+
+```powershell
+cd artifacts\sanskrit-translator
+pnpm dev
+```
+
+**What this does:**
+- Starts the Vite development server on port 5173
+- Enables hot module reloading (changes appear instantly)
+- Sets up a proxy to forward API requests to the backend
+- Watches for file changes and auto-compiles
+
+**Frontend access:**
+- Open your browser and go to `http://localhost:5173`
+- You should see the Sanskrit Decoder UI
+
+**If port 5173 is already in use:**
+
+```powershell
+# Use a different port
+pnpm dev -- --port 5174
+```
+
+### Step 3: Access the Application
+
+1. **Frontend:** Open `http://localhost:5173` in your web browser
+2. **Backend API Docs:** Open `http://localhost:8000/docs` to see all available endpoints
+3. **Backend Health:** Check `http://localhost:8000/healthz` (should return 200 OK)
+
+### Step 4: Test the Application
+
+Once both servers are running, you can test the features:
+
+1. **Text Translation:**
+   - Go to the frontend at `http://localhost:5173`
+   - Enter Sanskrit text or paste Devanagari script
+   - Click "Translate"
+   - View the results including transliteration, English translation, and word-by-word breakdown
+
+2. **Image Translation:**
+   - Click the "Upload Image" tab
+   - Select a Sanskrit manuscript or inscription image
+   - Click "Translate"
+   - The backend will process the image and return the translation
+
+3. **Translation History:**
+   - All translations are automatically saved to the SQLite database
+   - View your translation history in the "History" section
+
+### Stopping the Servers
+
+To stop either server:
+- Press `Ctrl+C` in the terminal where it's running
+- The server will shut down gracefully
+
+**To restart:** Simply run the same command again in the terminal.
+
+## Common Commands
+
+During development, you'll frequently use these commands:
+
+```powershell
+# Frontend commands
+cd artifacts\sanskrit-translator
+pnpm dev              # Start dev server
+pnpm build            # Build for production
+pnpm typecheck        # Check TypeScript types
+
+# Backend commands
+# (Make sure .venv is activated first)
+python services\python-api\main.py    # Run backend
+pip install -e .                      # Install dependencies
+
+# Workspace commands
+pnpm run typecheck                    # Type-check all packages
+pnpm run build                        # Build all packages
+pnpm install                          # Install all dependencies
 ```
 
 ## Troubleshooting
 
-- `403` or `PERMISSION_DENIED` from Gemini: verify `AI_INTEGRATIONS_GEMINI_API_KEY` is set correctly.
-- Frontend not loading: check Vite port and `PY_API_URL` configuration.
-- Backend not starting: ensure `.venv` is activated and dependencies are installed.
+### Setup Issues
+
+**Problem: `command not found: node` or `command not found: python`**
+- **Solution:** Node.js or Python is not installed or not in your system PATH
+- Install from [nodejs.org](https://nodejs.org/) and [python.org](https://www.python.org/)
+- Restart your terminal after installation
+
+**Problem: `pnpm: command not found`**
+- **Solution:** pnpm is not installed or activated
+- Try: `npm install -g pnpm` (requires npm to be installed)
+- Or use: `corepack enable` to use pnpm from Node.js
+
+**Problem: `pip install -e .` fails with dependency errors**
+- **Solution:** Python version might be incompatible
+- Check Python version: `python --version` (should be 3.10+)
+- Try upgrading pip: `python -m pip install --upgrade pip`
+- Delete `.venv` and recreate it: `rmdir .\.venv` then `python -m venv .venv`
+
+**Problem: `.venv\Scripts\Activate.ps1` fails on PowerShell**
+- **Error:** "cannot be loaded because running scripts is disabled"
+- **Solution:** Run PowerShell as Administrator, then:
+  ```powershell
+  Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
+  ```
+- Then try activating again
+
+**Problem: `ModuleNotFoundError: No module named 'fastapi'`**
+- **Solution:** Python virtual environment is not activated
+- Run: `.\.venv\Scripts\Activate.ps1`
+- You should see `(.venv)` at the start of your terminal prompt
+- Then run the backend again
+
+### Running the Project
+
+**Problem: Backend won't start - `Address already in use`**
+- **Error:** `Address already in use (:8000)`
+- **Solution:** Port 8000 is already being used
+- Find what's using it: `netstat -ano | findstr :8000` (Windows)
+- Kill the process or use a different port:
+  ```powershell
+  uvicorn services.python-api.main:app --port 8001
+  ```
+
+**Problem: Frontend won't start - Port 5173 in use**
+- **Error:** `EADDRINUSE: address already in use :::5173`
+- **Solution:** Use a different port:
+  ```powershell
+  cd artifacts\sanskrit-translator
+  pnpm dev -- --port 5174
+  ```
+
+**Problem: Frontend shows `Cannot POST /py-api/translate/text`**
+- **Issue:** Backend server is not running or frontend can't reach it
+- **Solutions:**
+  1. Check backend is running: Open `http://127.0.0.1:8000/docs` in browser
+  2. If backend is on a different machine, set: `PY_API_URL` environment variable
+  3. Check vite.config.ts proxy configuration points to correct backend URL
+
+**Problem: `403 Forbidden` or Gemini API errors in translation requests**
+- **Issue:** Gemini API key is missing or invalid
+- **Solutions:**
+  1. Verify `.env` file exists in project root
+  2. Check the API key is correct: `cat .env` (don't share it!)
+  3. Regenerate key from [Google AI Studio](https://aistudio.google.com/app/apikey)
+  4. Update `.env` with new key
+  5. Restart backend: `Ctrl+C` then run backend command again
+
+**Problem: Frontend not updating when you edit files**
+- **Issue:** Hot Module Reloading (HMR) isn't working
+- **Solutions:**
+  1. Check Vite is running in the correct folder: `artifacts\sanskrit-translator`
+  2. Restart Vite: `Ctrl+C` then `pnpm dev`
+  3. Clear browser cache: `Ctrl+Shift+Delete`
+  4. Hard refresh browser: `Ctrl+Shift+R`
+
+**Problem: SQLite database file not found**
+- **Issue:** `FileNotFoundError: services/python-api/translations.db`
+- **Solution:** The database is created automatically on first run
+- If it's missing, check file permissions and that backend can write to the folder
+- Restart the backend: it will initialize the database
+
+### General Debugging
+
+**Check if services are running:**
+
+```powershell
+# Check if backend is running (should return 200)
+curl http://127.0.0.1:8000/healthz
+
+# Or in PowerShell:
+Invoke-WebRequest -Uri http://127.0.0.1:8000/healthz
+```
+
+**View backend logs:**
+- All backend activity is printed to the terminal where you ran it
+- Look for error messages or warnings
+- Increase logging by editing `services/python-api/main.py`
+
+**View frontend console errors:**
+- Open browser Developer Tools: `F12` or `Ctrl+Shift+I`
+- Check the "Console" tab for JavaScript errors
+- Check "Network" tab to see API requests and responses
+
+**Reset everything and start fresh:**
+
+```powershell
+# Stop both servers (Ctrl+C in their terminals)
+
+# Remove dependencies
+rmdir -Recurse node_modules
+rmdir -Recurse .venv
+rm pnpm-lock.yaml
+
+# Reinstall everything
+pnpm install
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+pip install -e .
+
+# Start fresh
+# Terminal 1:
+python services\python-api\main.py
+
+# Terminal 2:
+cd artifacts\sanskrit-translator
+pnpm dev
+```
 
 ## Notes
 
